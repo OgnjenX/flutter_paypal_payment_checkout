@@ -6,7 +6,7 @@ import 'package:flutter_paypal_payment/src/paypal_service.dart';
 
 class PaypalCheckoutView extends StatefulWidget {
   final Function onSuccess, onCancel, onError;
-  final String? note, clientId, secretKey;
+  final String? note, clientId, secretKey, title;
 
   final Widget? loadingIndicator;
   final List? transactions;
@@ -22,6 +22,7 @@ class PaypalCheckoutView extends StatefulWidget {
     this.sandboxMode = false,
     this.note = '',
     this.loadingIndicator,
+    this.title,
   }) : super(key: key);
 
   @override
@@ -101,8 +102,8 @@ class PaypalCheckoutViewState extends State<PaypalCheckoutView> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           centerTitle: true,
-          title: const Text(
-            "Paypal Payment",
+          title: Text(
+            widget.title ?? "Paypal Payment",
           ),
         ),
         body: Stack(
