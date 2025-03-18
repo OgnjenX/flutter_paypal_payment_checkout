@@ -1,17 +1,19 @@
+import 'dart:async';
+import 'dart:convert' as convert;
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
 
-import 'dart:async';
-import 'dart:convert' as convert;
+import 'payout_data.dart';
 
 class PaypalServices {
   final String clientId, secretKey;
   final bool sandboxMode;
+
   PaypalServices({
     required this.clientId,
     required this.secretKey,
-    required this.sandboxMode,
+    this.sandboxMode = false,
   });
 
   getAccessToken() async {
@@ -123,6 +125,44 @@ class PaypalServices {
       };
     } catch (e) {
       return {'error': true, 'message': e, 'exception': true, 'data': null};
+    }
+  }
+
+  Future<Map<String, dynamic>> processPayout(
+    PayoutData payoutData,
+    String accessToken,
+  ) async {
+    try {
+      String domain = sandboxMode
+          ? "https://api.sandbox.paypal.com"
+          : "https://api.paypal.com";
+
+      final response = await Dio().post(
+        '$domain/v1/payments/payouts',
+        options: Options(
+          headers: {'Authorization': 'Bearer $accessToken'},
+        ),
+        data: jsonEncode(payoutData.toJson()),
+      );
+
+      if (response.statusCode == 201) {
+        return {'error': false, 'message': 'Payout successful!'};
+      } else {
+        return {'error': true, 'message': 'Payout failed: ${response.data}'};
+      }
+    } on DioException catch (e) {
+      return {
+        'error': true,
+        'message': "Payout Failed.",
+        'data': e.response?.data,
+      };
+    } catch (e) {
+      return {
+        'error': true,
+        'message': 'Error processing payout: $e',
+        'exception': true,
+        'data': null,
+      };
     }
   }
 }

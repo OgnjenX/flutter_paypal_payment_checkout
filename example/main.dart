@@ -12,6 +12,12 @@ class PaypalPaymentDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final paypalService = PaypalServices(
+      sandboxMode: true,
+      clientId: "YOUR CLIENT ID",
+      secretKey: "YOUR SECRET KEY",
+    );
+
     return MaterialApp(
       title: 'PaypalPaymentDemp',
       debugShowCheckedModeBanner: false,
@@ -21,9 +27,7 @@ class PaypalPaymentDemo extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (BuildContext context) => PaypalCheckoutView(
-                  sandboxMode: true,
-                  clientId: "YOUR CLIENT ID",
-                  secretKey: "YOUR SECRET KEY",
+                  service: paypalService,
                   transactions: const [
                     {
                       "amount": {

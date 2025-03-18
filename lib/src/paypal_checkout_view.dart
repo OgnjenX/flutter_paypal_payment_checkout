@@ -6,20 +6,19 @@ import 'package:flutter_paypal_payment/src/paypal_service.dart';
 
 class PaypalCheckoutView extends StatefulWidget {
   final Function onSuccess, onCancel, onError;
-  final String? note, clientId, secretKey, title;
+  final String? note, title;
+  final PaypalServices service;
 
   final Widget? loadingIndicator;
   final List? transactions;
-  final bool? sandboxMode;
+
   const PaypalCheckoutView({
     Key? key,
     required this.onSuccess,
     required this.onError,
     required this.onCancel,
     required this.transactions,
-    required this.clientId,
-    required this.secretKey,
-    this.sandboxMode = false,
+    required this.service,
     this.note = '',
     this.loadingIndicator,
     this.title,
@@ -37,7 +36,7 @@ class PaypalCheckoutViewState extends State<PaypalCheckoutView> {
   String executeUrl = '';
   String accessToken = '';
   bool loading = true;
-  bool pageloading = true;
+  bool pageLoading = true;
   bool loadingError = false;
   late PaypalServices services;
   int pressed = 0;
@@ -51,21 +50,24 @@ class PaypalCheckoutViewState extends State<PaypalCheckoutView> {
   Map getOrderParams() {
     Map<String, dynamic> temp = {
       "intent": "sale",
-      "payer": {"payment_method": "paypal"},
+      "payer": {
+        "payment_method": "paypal",
+      },
       "transactions": widget.transactions,
       "note_to_payer": widget.note,
-      "redirect_urls": {"return_url": returnURL, "cancel_url": cancelURL}
+      "redirect_urls": {"return_url": returnURL, "cancel_url": cancelURL},
+      "application_context": {
+        "brand_name": "OnlyFarms",
+        "landing_page": "BILLING"
+        // Forces the credit card form instead of PayPal login
+      }
     };
     return temp;
   }
 
   @override
   void initState() {
-    services = PaypalServices(
-      sandboxMode: widget.sandboxMode!,
-      clientId: widget.clientId!,
-      secretKey: widget.secretKey!,
-    );
+    services = widget.service;
 
     super.initState();
     Future.delayed(Duration.zero, () async {
@@ -113,7 +115,7 @@ class PaypalCheckoutViewState extends State<PaypalCheckoutView> {
                 final url = navigationAction.request.url;
 
                 if (url.toString().contains(returnURL)) {
-                  exceutePayment(url, context);
+                  executePayment(url, context);
                   return NavigationActionPolicy.CANCEL;
                 }
                 if (url.toString().contains(cancelURL)) {
@@ -169,7 +171,7 @@ class PaypalCheckoutViewState extends State<PaypalCheckoutView> {
     }
   }
 
-  void exceutePayment(Uri? url, BuildContext context) {
+  void executePayment(Uri? url, BuildContext context) {
     final payerID = url!.queryParameters['PayerID'];
     if (payerID != null) {
       services.executePayment(executeUrl, payerID, accessToken).then(
