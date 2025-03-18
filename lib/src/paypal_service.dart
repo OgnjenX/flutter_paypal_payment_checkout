@@ -4,7 +4,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 
-import 'payout_data.dart';
+import 'models/payout_data.dart';
 
 class PaypalServices {
   final String clientId, secretKey;
