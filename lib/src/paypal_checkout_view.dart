@@ -58,8 +58,8 @@ class PaypalCheckoutViewState extends State<PaypalCheckoutView> {
       "redirect_urls": {"return_url": returnURL, "cancel_url": cancelURL},
       "application_context": {
         "brand_name": "OnlyFarms",
+        // 'BILLING' Forces the credit card form instead of PayPal login
         "landing_page": "BILLING"
-        // Forces the credit card form instead of PayPal login
       }
     };
     return temp;
