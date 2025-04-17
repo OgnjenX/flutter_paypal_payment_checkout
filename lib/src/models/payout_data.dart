@@ -5,12 +5,16 @@ class PayoutData {
   final double sellerAmount;
   final String orderId;
   final DeliveryPayout? delivery;
+  final double? appFeeAmount;
+  final String? appFeeEmail;
 
   PayoutData({
     required this.sellerEmail,
     required this.sellerAmount,
     required this.orderId,
     this.delivery,
+    this.appFeeAmount,
+    this.appFeeEmail,
   });
 
   Map<String, dynamic> toJson() {
@@ -45,6 +49,20 @@ class PayoutData {
         },
         "note": "Delivery Payment for Order $orderId",
         "sender_item_id": "DeliveryPayment-$orderId"
+      });
+    }
+
+    // Add app fee payout if present
+    if (appFeeAmount != null && appFeeAmount! > 0 && appFeeEmail != null) {
+      payoutData["items"].add({
+        "recipient_type": "EMAIL",
+        "receiver": appFeeEmail!,
+        "amount": {
+          "value": appFeeAmount!.toStringAsFixed(2),
+          "currency": "USD"
+        },
+        "note": "Platform Fee for Order $orderId",
+        "sender_item_id": "AppFeePayment-$orderId"
       });
     }
 
